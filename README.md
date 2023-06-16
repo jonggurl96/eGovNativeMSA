@@ -40,7 +40,7 @@
 - [pom.xml](Catalogs/pom.xml)
 
 ## application.yml 파일 생성
-- [application.yml](Catalogs/src/main/resources/application.yaml)
+- [application.yml](Catalogs/src/main/resources/application.yml)
 - application.properties 파일의 형식 재정의로 yaml 파일로 변경 가능
 
 ## 각 클래스 파일 작성
