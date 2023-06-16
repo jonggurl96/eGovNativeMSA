@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class CustomerController {
     
     @GetMapping("/{customerId}")
-    public String getCustomerDetail(@PathVariable String customerId) {
+    public String getCustomerDetail(@PathVariable String customerId) throws Exception {
         System.out.println("request customerId : " + customerId);
-        
-        return "[Customer id = " + customerId + " at " + System.currentTimeMillis() + "]";
+        throw new Exception("I/O Exception");
+        //return "[Customer id = " + customerId + " at " + System.currentTimeMillis() + "]";
     }
 }

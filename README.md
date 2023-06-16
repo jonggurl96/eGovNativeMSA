@@ -1,7 +1,7 @@
 # eGovFramework Cloud Native MSA 적용 개발 가이드 따라하기
 - JDK Eclipse temurin 1.8
 - eGovframework 4.0.0
-- SpringBoot 3.1.0
+- SpringBoot 2.2.6.RELEASE
 - Spring Framework 5.2.5
 - Spring swagger 2.9.2
 
@@ -9,6 +9,7 @@
 - [화면 서비스: CatalogsService](#catalogsservice)
 - [실제 정보를 담고 있는 서비스: CustomersService](#customersservice)
 - [Catalogs & Customers 서비스 연동 및 테스트](#catalogs--customers-서비스-연동-및-테스트)
+- [Spring Cloud 컴포넌트 활용](#spring-cloud-컴포넌트-활용)
 
 
 
@@ -93,10 +94,48 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
 
 
 
+# Spring Cloud 컴포넌트 활용
+## 적용 Cloud 컴포넌트
+- [Circuit Breaker - Hystrix](#circuit-breaker---hystrix)
+- [Client LoadBalancer - Ribbon](#client-loadbalancer---ribbon)
+- [Service Registry - Eureka](#service-registry---eureka)
+- [API Gateway - Zuul](#api-gateway---zuul)
+- [Config Server](#config-server)
 
+### Circuit Breaker - Hystrix
+    분산환경을 위한 장애 및 지연 내성을 갖도록 도와주는 라이브러리
+    장애 전파를 방지하기 위해 필수적인 컴포넌트
+- 장애 및 지연 내성
+- 실시간 구동 모니터링
+- 병행성
+#### 라이브러리 적용
+    서비스를 호출하는 서비스에 적용
+> Catalogs 서비스에 Hystrix 적용하기
+> - pom.xml
+> ```xml
+> <dependency>
+>   <groupId>org.springframework.cloud</groupId>
+>   <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+>   <version>${spring.cloud.version}</version>
+> </dependency>
+> ```
+> - CatalogsApplication.java에 @EnableCircuitBreaker Annotation 추가
+> - CustomerApiServiceImpl의 getCustomerDetail() 메서드에 @HystrixCommand(fallbackMethod) Annotation을 추가하고 Fallback 메소드를 추가한다.
+> ```java
+> public String fallbackMethod(String customerId, Throwable ex) {
+>   System.out.println("Error: " + ex.getMessage());
+>   return "고객정보 조회가 지연되고 있습니다.";
+> }
+> ```
+> - 원활한 테스트를 위해 CustomersService CustomerController의 getCustomerDetail()메서드에 throw new Exception 구문을 추가하고 실행
 
+### Client LoadBalancer - Ribbon
 
+### Service Registry - Eureka
 
+### API Gateway - Zuul
+
+### Config Server
 
 
 
