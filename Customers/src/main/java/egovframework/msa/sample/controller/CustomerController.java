@@ -12,7 +12,9 @@ public class CustomerController {
     @GetMapping("/{customerId}")
     public String getCustomerDetail(@PathVariable String customerId) throws Exception {
         System.out.println("request customerId : " + customerId);
-        throw new Exception("I/O Exception");
-        //return "[Customer id = " + customerId + " at " + System.currentTimeMillis() + "]";
+        if(customerId.equalsIgnoreCase("error")) {
+            throw new Exception("customerId 값은 error일 수 없습니다.");
+        }
+        return "[Customer id = " + customerId + " at " + System.currentTimeMillis() + "]";
     }
 }

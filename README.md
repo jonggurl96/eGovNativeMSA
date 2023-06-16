@@ -130,6 +130,51 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
 > - 원활한 테스트를 위해 CustomersService CustomerController의 getCustomerDetail()메서드에 throw new Exception 구문을 추가하고 실행
 
 ### Client LoadBalancer - Ribbon
+#### LoadBalancing 
+> 부하 분산 처리
+> - Scale-Up
+>   - 서버 자체의 성능을 확장
+> - Scale-Out
+>   - 서버 증설
+#### Ribbon
+> 클라이언트에 탑재할 수 있는 S/W 기반의 Load Balancer   
+> 요청을 순서대로 배정하는 Round-Robin 방식으로 부하 분산 기능 제공
+- 구성요소
+  - Rule: 요청을 보낼 서버를 선택하는 규칙
+    - RoundRobin(default): 한 서버씩 돌아가며 전달
+    - Available Filtering: 에러가 많은 서버 제외
+    - Weighted Response Time: 서버별 응답 시간에 따라 조절
+  - Ping: 서버가 살아있는지 확인
+    - Static/Dynamic 모두 사용 가능
+  - ServerList: 로드 밸런싱 대상 서버 목록
+    - Configuration을 통한 정적 설정
+    - Eureka를 통한 동적 설정
+
+#### Ribbon 라이브러리 활용
+> - Ribbon을 각 서비스를 호출하는 Catalogs 서비스에 적용
+> - Ribbon의 @LoadBalanced를 RestTemplate에 적용
+   
+> - pom.xml
+> ```xml
+> <dependency>
+>   <groupId>org.springframework.cloud</groupId>
+>   <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+>   <version>${spring.cloud.version}</version>
+> </dependency>
+> ```
+> - CatalogsApplication의 RestTemplate Bean에 @LoadBalanced Annotation 추가
+> - CustomerApiServiceImpl의 Customers 서비스 호출 URL 주소의 localhost:8082를 customer로 변경
+> - application.yml에 Ribbon 설정을 추가한다.
+> ```yaml
+> customer:
+>   ribbon:
+>     listOfServers: localhost:8082
+> ```
+
+
+
+
+
 
 ### Service Registry - Eureka
 
