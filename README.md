@@ -171,12 +171,45 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
 >     listOfServers: localhost:8082
 > ```
 
-
-
-
-
-
 ### Service Registry - Eureka
+> MSA의 장점 중 하나인 동적인 서비스 증설 및 축소를 위한 필수 라이브러리
+> - Eureka Server: Eureka Client에 해당하는 Micro Service들의 상태 정보가 등록되어있는 레지스트리 서버
+> - Eureka Client: 서비스가 시작될 때 Eureka Server에 자신의 정보를 등록하고 주기적으로 가용상태(health check)를 알리며 
+> ping이 확인되지 않으면 Eureka Server에서 해당 서비스를 제외
+> 
+> Ribbon과 결합하여 서버 목록을 자동으로 관리 및 갱신한다.
+
+#### Eureka Server Service 작성
+- Spring Boot Initializr 사용
+- 서비스 레지스트리 외의 작업이 없으므로 egov 라이브러리를 제거하고 Eureka 서버 라이브러리만 등록
+- EurekaServerApplication에 @EnableEurekaServer Annotation 추가
+- application.yml 작성
+  ```yaml
+  server:
+    port:8761
+  
+  spring:
+    application:
+      name: EurekaServer
+  ```
+- 실행 후 localhost:8761로 접속하면 EurekaServer 화면이 나타난다.
+
+#### Eureka Client Service 작성
+> 기존의 Catalogs 서비스와 Customers 서비스를 Eureka Client로 설정
+##### Catalogs Service와 CustomersService에 Eureka Client 라이브러리 적용
+> pom.xml
+> CatalogsApplication에 @EnableEurekaClient Annotation 추가
+> application.yml에 아래 항목 추가
+> ```yaml
+> eureka:
+>   instance:
+>     prefer-ip-address: true
+>   client:
+>     service-url:
+>       default-zone: http://localhost:8761/eureka
+> ```
+> > CatalogsService의 application.yml에서 Ribbon 관련 부분은 주석처리한다.    
+> 실행 후 모든 서비스가 Eureka Server에 등록된다.
 
 ### API Gateway - Zuul
 

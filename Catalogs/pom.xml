@@ -17,7 +17,7 @@
     <properties>
         <java.version>8</java.version>
         <org.egovframe.rte.version>4.0.0</org.egovframe.rte.version>
-        <spring.cloud.version>2.2.10.RELEASE</spring.cloud.version>
+        <spring.cloud.version>2.2.5.RELEASE</spring.cloud.version>
     </properties>
 
     <repositories>
@@ -103,6 +103,13 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+            <version>${spring.cloud.version}</version>
+        </dependency>
+
+        <!-- Eureka Client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <version>${spring.cloud.version}</version>
         </dependency>
 
