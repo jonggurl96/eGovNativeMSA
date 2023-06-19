@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: zuul
+zuul:
+  routes:
+    catalog:
+      path: /catalogs/**
+      service-id: catalog
+      strip-prefix: false
+    customer:
+      path: /customers/**
+      service-id: customer
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    non-secure-port: ${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
