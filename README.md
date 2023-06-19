@@ -212,6 +212,71 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
 > 실행 후 모든 서비스가 Eureka Server에 등록된다.
 
 ### API Gateway - Zuul
+> - 모든 클라이언트 요청에 대한 end-point를 통합하는 서비스
+> - Eureka, Hystrix, Ribbon 등의 여러 기능을 내장
+#### 주요 기능
+- 인증 및 보안
+- 모니터링
+- 동적 라우팅
+- 부하 테스트
+- 트래픽 드랍
+- 정적 응답 처리
+#### ZuulService 작성
+- 위와 마찬가지의 Spring boot 프로젝트 ZuulServer 작성
+- API Gateway 역할 이외의 별도 작업이 없으므로 Zuul, Eureka Client, Spring-retry 라이브러리 등록
+  - Zuul
+    ```xml
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+        <version>2.2.5.RELEASE</version>
+    </dependency>
+    ```
+  - Eureka Client
+    ```xml
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        <version>2.2.5.RELEASE</version>
+    </dependency>
+    ```
+  - Spring-retry
+    ```xml
+    <dependency>
+        <groupId>org.springframework.retry</groupId>
+        <artifactId>spring-retry</artifactId>
+    </dependency>
+    ```
+- ZuulServerApplication 작성
+  - @EurekaDiscoveryClient Annotation: Eureka, Consul, Zookeeper에도 동작 가능
+  - @EnableZuulProxy
+- application.yml
+  ```yaml
+  spring:
+    application:
+      name: zuul
+  
+  server:
+    port: 8080
+  
+  zuul:
+    routes:
+      catalog:
+        path: /catalogs/**
+        serviceId: catalog
+        stripPrefix: false
+      customer:
+        path: /customers/**
+        serviceId: customer
+  
+  eureka:
+    instance:
+      non-secure-port: ${server.port}
+      prefer-ip-address: true
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka
+  ```
 
 ### Config Server
 
