@@ -468,9 +468,31 @@ spring:
 > - API Gateway Zuul을 통해 request를 받고 Ribbon을 통해 로드밸런싱이 기능하며 Config 서버로 환경설정이 가능하다.
 
 #### Sidecar 작성
-
-
-
+- pom.xml
+  ```xml
+  <dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-netflix-sidecar</artifactId>
+    <version>2.2.5.RELEASE</version>
+  </dependency>
+  ```
+- SidecarApplication에 @EnableSidecar Annotation 추가
+  - @EnableSidecar는 내부적으로 @EnableCircuitBreaker, @EnableDiscoveryClient, @EnableZuulProxy를 포함한다.
+- application.yml 파일 작성
+  ```yaml
+  server:
+    port: 5678
+  spring:
+    application:
+      name: sidecar-nonJVM
+  sidecar:
+    port:5000
+    health-uri: http://localhost:5000/health.json
+    hostname: localhost # sidecar와 비JVM 애플리케이션의 호스트는 동일함
+  ```
+- 비 JVM 애플리케이션에서 상태체크 Endpoint 작성
+> pip install Flask 실행 후 [app.py](app.py) 실행
+- Eureka Server, non-JVM service, Sidecar를 실행하면 Eureka Server에 SIDECAR-NONJVM이 등록된다.
 
 
 
