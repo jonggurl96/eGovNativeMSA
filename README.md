@@ -415,3 +415,70 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
   - ConfigServer의 application.yml 파일에서 classpath의 templateEnterprise-dev.yml 파일을 바라보게 함
   - > target/classes/configuration-repository/templateEnterprise-dev.yml 파일을 수정해야 원하는 결과가 나옴
 
+### Spring Cloud Bus 환경 구성 - RabbitMQ
+> - Config Server 설정값이 변경괼 경우 마이크로 서비스들이 변경된 설정 값을 갱신하기 위해 /actuator/refersh를 수행해줘야한다.
+> - Config Server에서 마이크로 서비스들에게 refresh를 수행하라는 메시지를 전송해주는 컴포넌트를 **메시지 브로커**라고 한다.
+> - RabbitMQ, Kafka 등이 그 예이다.
+
+RabbitMQ 설치 가이드:  https://www.rabbitmq.com/download.html
+- Windows: https://www.rabbitmq.com/install-windows.html
+- MacOS: https://www.rabbitmq.com/install-homebrew.html
+- Linux: https://www.rabbitmq.com/install-debian.html
+
+설치 후 서버 실행
+- RabbitMQ Server/rabbitmq_server-3.12.0/sbin/rabbitmq-server
+
+서버 실행 후 웹 관리 콘솔 사용 플러그인 활성화
+- rabbitmq-plugins enable rabbitmq_management
+
+RabbitMQ 관리 URL: localhost:15672
+- ID: guest
+- PW: guest
+
+#### RabbitMQ 사용을 위한 Config Client 수정
+- pom.xml
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-bus-amqp</artifactId>
+  <version>2.2.3.RELEASE</version>
+</dependency>
+```
+- application.yml
+> RabbitMQ의 정보 입력 후 엔드포인트를 "*"로 변경
+```yaml
+spring:
+  rabbitmq:
+    host: localhost # rabbitmq 호스트
+    port: 5672      # rabbitmq 서비스 포트
+    username: guest # rabbitmq 사용자명
+    password: guest # rabbitmq 비밀번호
+```
+- Config Server와 Config Client 실행 후 RabbitMQ 관리페이지에 Connection 추가됨
+- Exchanges 탭에서 springCloudBus 확인 가능
+#### Spring Cloud Bus 테스트
+- Config Server의 templateEnterprise-dev.yml 파일의 config.profile 값을 ebt-change로 변경
+- classpath의 templateEnterprise-dev.yml 수정 후 Config Client의 bus-refresh actuator를 호출 (POST)
+- 테스트 URL localhost:9625/config/profile 접속하면 변경된 속성값이 출력됨
+
+### Polygot Support - Sidecar
+> Spring 기반 애플리케이션 외의 비 JVM 애플리케이션을 Spring Cloud와 연동하려면 Spring Cloud Sidecar를 사용한다.
+> - Springboot로 작성된 Sidecar를 Eureka에  등록해 연동한다.
+> - non-JVM microservice는 Sidecar의 존재를 알지 못한다.
+> - API Gateway Zuul을 통해 request를 받고 Ribbon을 통해 로드밸런싱이 기능하며 Config 서버로 환경설정이 가능하다.
+
+#### Sidecar 작성
+
+
+
+
+
+
+
+
+
+
+
+
+
+
