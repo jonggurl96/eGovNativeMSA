@@ -279,9 +279,139 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
   ```
 
 ### Config Server
+> - 분산시스템에서 애플리케이션의 환경설정정보들을 애플리케이션과 분리해 외부에서 관리하도록 한 환경설정 서버
+> - DB 접속 정보, 미들웨어 접속정보, 애플리케이션을 구성하는 각종 메타데이터들을 관리
+> - Config 서버 구동 시 Environment Repository에서 설정 내용을 내려받고 애플리케이션이 초기화되고 구동된다.
+> - 서비스 운영 중 설정 파일 변경 시 Spring Clud Bus를 이용하여 모든 마이크로 서비스의 환경설정을 업데이트할 수 있다.
+> - Spring Cloud Bus는 RabbitMQ, Kafka 같은 경량 메시지 브로커를 사용한다.
 
+#### Config 서버 작성
+- ConfigServer 프로젝트 생성 후 라이브러리 등록
+  - Config Server
+    ```xml
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-server</artifactId>
+        <version>2.2.5.RELEASE</version>
+    </dependency>
+    ```
+  - Security와 Actuator
+    ```xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    ```
+  - Web
+    ```xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    ```
+- ConfigServerApplication에 @EnableConfigServer Annotation 추가
+- application.yml 파일 작성
+  ```yaml
+  server:
+    port: 8888
+  
+  spring:
+    application:
+      name:
+        -templateSimple
+        -templatePortal
+        -templateEnterprise
+    profiles:
+      active: native
+    cloud:
+      config:
+        server:
+          native:
+            search-locations: classpath:/configuration-repository/ # 검색할 설정파일 경로
+  ```
+- 환경파일 작성
+  - templateSimple-dev.yml
+    ```yaml
+    config:
+      profile: sht
+      message: templateSimple(dev)
+    
+    Globals:
+      DbType: mysql
+      DriverClassName: com.mysql.jdbc.Driver
+      Url: jdbc:mysql://localhost:3306/sht
+      Username: com
+      Password: com01
+    ```
+  - templatePortal-dev.yml
+    ```yaml
+    config:
+      profile: pst
+      message: templatePortal(dev)
+    
+    Globals:
+      DbType: mysql
+      DriverClassName: com.mysql.jdbc.Driver
+      Url: jdbc:mysql://localhost:3306/pst
+      Username: com
+      Password: com01
+    ```
+  - templateEnterprise-dev.yml
+    ```yaml
+    config:
+      profile: ebt
+      message: templateEnterprise(dev)
+    
+    Globals:
+      DbType: mysql
+      DriverClassName: com.mysql.jdbc.Driver
+      Url: jdbc:mysql://localhost:3306/ebt
+      Username: com
+      Password: com01
+    ```
+- 서버 구동 후 localhost:8888/actuator에 접속하여 테스트
 
-
-
-
+### Config Client
+- ConfigClient 프로젝트 생성하되 Springboot 3.1.0 버전과 Spring Initializr의 dependency 추가 기능을 사용해 다음 라이브러리를 추가한다.
+  - spring boot starter web
+  - spring boot starter actuator
+  - spring cloud starter config
+- ConfigClientApplication에 profile 변경 코드를 추가한다.
+  ```yaml
+  String profile = System.getProperty("spring.profiles.active");
+  if(profile == null) {
+      System.setProperty("spring.profiles.acive", "dev");
+  }
+  ```
+- [ConfigClientController]()를 작성한다.
+- bootstrap.yml을 작성한다.
+  ```yaml
+  server:
+    port: 9265
+  spring:
+    application:
+      name: templateEnterprise
+    cloud:
+      config:
+        uri: http://localhost:8888 # config server url
+  ```
+- application.yml을 작성한다.
+  ```yaml
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: ['env', 'refresh'] # endpoint,  ex) http://localhost:9265/actuator/refresh
+  ```
+- Config Server와 Config Client를 실행하고 아래 URL의 내용이 정상적으로 실행되는지 확인한다.
+  - http://localhost:9265/config/profile
+  - http://localhost:9265/config/message
+  - http://localhost:9265/actuator/env
+- 클라이언트 환경설정값 업데이트 테스트
+  - ConfigServer의 templateEnterprise-dev.yml의 config.profile 값을 ebt에서 ebt2로 변경한다.
+  - rest-api 테스트도구를 통해 /actuator/refresh로 POST 요청을 보낸다.
+  - request body에는 "config.profile" 값을 준다.
+  - 다시 /config/profile로 접속해 변경된 값이 출력되는지 확인한다.
+  - ConfigServer의 application.yml 파일에서 classpath의 templateEnterprise-dev.yml 파일을 바라보게 함
+  - > target/classes/configuration-repository/templateEnterprise-dev.yml 파일을 수정해야 원하는 결과가 나옴
 

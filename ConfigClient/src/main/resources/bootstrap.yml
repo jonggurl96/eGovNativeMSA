@@ -1,0 +1,9 @@
+server:
+  port: 9265
+
+spring:
+  application:
+    name: templateEnterprise
+  cloud:
+    config:
+      uri: http://localhost:8888

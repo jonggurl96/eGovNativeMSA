@@ -1,0 +1,10 @@
+config:
+  profile: sht
+  message: templateSimple(dev)
+
+Globals:
+  DbType: mysql
+  DriverClassName: com.mysql.jdbc.Driver
+  Url: jdbc:mysql://localhost:3306/sht
+  UserName: com
+  Password: com01
