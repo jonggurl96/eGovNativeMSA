@@ -113,6 +113,20 @@
             <version>${spring.cloud.version}</version>
         </dependency>
 
+        <!-- Sleuth -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+            <version>${spring.cloud.version}</version>
+        </dependency>
+
+        <!-- Zipkin -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+            <version>${spring.cloud.version}</version>
+        </dependency>
+
         <!-- 표준프레임워크 실행환경 -->
         <dependency>
             <groupId>org.egovframe.rte</groupId>

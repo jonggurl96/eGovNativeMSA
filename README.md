@@ -2,14 +2,13 @@
 - JDK Eclipse temurin 1.8
 - eGovframework 4.0.0
 - SpringBoot 2.2.6.RELEASE
-- Spring Framework 5.2.5
-- Spring swagger 2.9.2
 
 # Service Mesh
 - [화면 서비스: CatalogsService](#catalogsservice)
 - [실제 정보를 담고 있는 서비스: CustomersService](#customersservice)
 - [Catalogs & Customers 서비스 연동 및 테스트](#catalogs--customers-서비스-연동-및-테스트)
 - [Spring Cloud 컴포넌트 활용](#spring-cloud-컴포넌트-활용)
+- [Microservice 배포](#microservice-배포)
 
 
 
@@ -101,6 +100,12 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
 - [Service Registry - Eureka](#service-registry---eureka)
 - [API Gateway - Zuul](#api-gateway---zuul)
 - [Config Server](#config-server)
+- [Config Client](#config-client)
+- [Spring Cloud Bus - RabbitMQ](#spring-cloud-bus-환경-구성---rabbitmq)
+- [Polygot Support - Sidecar](#polygot-support---sidecar)
+- [Centralized Logging - ELK](#centralized-logging---elk)
+- [Centralized Metrics - Prometheus, Grafana](#centralized-metrics---prometheus-grafana)
+- [Distributed Tracing - Sleuth, Zipkin](#distributed-tracing---sleuth-zipkin)
 
 ### Circuit Breaker - Hystrix
     분산환경을 위한 장애 및 지연 내성을 갖도록 도와주는 라이브러리
@@ -420,16 +425,10 @@ Catalogs와 동일한 방법으로 생성 후 pom.xml 수정
 > - Config Server에서 마이크로 서비스들에게 refresh를 수행하라는 메시지를 전송해주는 컴포넌트를 **메시지 브로커**라고 한다.
 > - RabbitMQ, Kafka 등이 그 예이다.
 
-RabbitMQ 설치 가이드:  https://www.rabbitmq.com/download.html
-- Windows: https://www.rabbitmq.com/install-windows.html
-- MacOS: https://www.rabbitmq.com/install-homebrew.html
-- Linux: https://www.rabbitmq.com/install-debian.html
-
-설치 후 서버 실행
-- RabbitMQ Server/rabbitmq_server-3.12.0/sbin/rabbitmq-server
-
-서버 실행 후 웹 관리 콘솔 사용 플러그인 활성화
-- rabbitmq-plugins enable rabbitmq_management
+#### RabbitMQ on Docker Container
+```shell
+docker run -d -e TZ=Asia/Seoul --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management
+```
 
 RabbitMQ 관리 URL: localhost:15672
 - ID: guest
@@ -494,13 +493,195 @@ spring:
 > pip install Flask 실행 후 [app.py](app.py) 실행
 - Eureka Server, non-JVM service, Sidecar를 실행하면 Eureka Server에 SIDECAR-NONJVM이 등록된다.
 
+### Centralized Logging - ELK
+> - Elastic search: Lucene 검색 엔진 기반의 NoSQL DB
+> - Logstash: Log Pipeline 도구
+> - Kibana: Elasticsearch UI
+> - qns산 환경에서 각각의 마이크로서비스에서 생성된 로그들을 한 곳으로 취합
+> - Logstash에서 로그 수집, Elastic search로 전송, Kibana 웹사이트에서 로그 확인
+
+#### Docker로 ELK 한 번에 사용하기
+~~Docker 안쓰니까 에러를 어떻게 고쳐야 할지 도저히 답이 안나온다~~
+```shell
+cd elk
+docker-compose up -d
+```
+#### Kibana에서 index 생성 후 로그 확인
+- Management 탭 > Index Pattern 추가
+- Index Pattern: logstash-*
+- Time Field: @timestamp
+- Discover 메뉴에서 logstash-* 로그 확인 가능
+
+### Centralized Metrics - Prometheus, Grafana
+~~귀찮으니 생략~~
+
+### Distributed Tracing - Sleuth, Zipkin
+> 분산 환경 서비스 간 병목 현상 발생 시 분산 환경 로그 트레이싱 필요
+
+#### Docker로 Zipkin 실행
+```shell
+docker run --name zipkin -d -p 9411:9411 -e TZ=Asia/Seoul openzipkin/zipkin
+```
+
+#### 마이크로 서비스 수정
+- pom.xml dependency 추가
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-sleuth</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-zipkin</artifactId>
+</dependency>
+```
+- application.yml zipkin baseurl 추가
+```yaml
+spring:
+  zipkin:
+    base-url: http://localhost:9411/
+```
 
 
 
 
+# Microservice 배포
 
+## Spring Boot 애플리케이션 도커 이미지 변환
 
+### 도커라이징
+> Dockerfile을 통해 도커 이미지를 생성   
+> - Dockerfile: 사용자가 이미지를 조립하기 위해 명령줄에서 호출할 수 있는 모든 명령을 포함하는 텍스트 문서
 
+### Dockerfile
+- Dockerfile 구조
+```dockerfile
+# comment
+INSTRUCTION arguments...
+```
 
+#### 주요 명령어
+| 명령어                       | 설명                                     |
+|---------------------------|----------------------------------------|
+| [FROM](#from)             | 기본 이미지 지정                              |
+| [LABEL](#label)           | 라벨 설명                                  |
+| [VOLUME](#volume)         | 볼륨 마운트                                 |
+| [EXPOSE](#expose)         | 컨테이너가 리스닝할 포트 및 프로토콜 설정                |
+| [ARG](#arg)               | 빌드 시 넘어올 수 있는 전달인자 설정                  |
+| [ADD](#addcopy)           | 파일 및 디렉토리 추가                           |
+| [ENTRYPOINT](#entrypoint) | 이미지를 컨테이너로 인스턴스화할 때 항상 실행되어야 하는 커맨드 설정 |
 
+###### FROM
+```dockerfile
+FROM <이미지>
+FROM <이미지>:<태그>
+```
+> 새 빌드 단계를 초기화하고 후속 명령어를 위해 기본 이미지를 설정하므로 
+> 모든 Dockerfile은 FROM 명령어로 시작한다. (*ARG 제외*)
 
+###### LABEL
+```dockerfile
+LABEL <K>=<V>
+```
+> 이미지에 메타데이터를 추가하며 키-값 쌍으로 구성되며 
+> 공백을 포함하려면 따옴표와 백 슬래시를 사용한다.
+
+###### VOLUME
+```dockerfile
+VOLUME <PATH>
+```
+> 지정된 이름으로 마운트 지점을 만들고 기본 호스트 또는 다른 컨테이너에서 
+> 외부 마운트 된 볼륨을 보유하는 것으로 표시한다.
+
+###### EXPOSE
+```dockerfile
+EXPOSE <PORT>
+EXPOSE <PORT>/<PROTOCOL>
+```
+> 컨테이너가 런타임에 수신 대기할 네트워크 포트를 지정한다.   
+> 프로토콜 기본값은 TCP이다.
+
+###### ARG
+```dockerfile
+ARG <이름>
+ARG <이름>=<기본값>
+```
+> docker build 명령으로 이미지 빌드 시 --build-arg 옵션을 통해 전달할 인자를 정의한다.
+
+###### ADD/COPY
+```dockerfile
+ADD [--chown=<user>:<group>] <src>... <dest>
+ADD [--chown=<user>:<group>] ["<src>"... "<dest>"]
+
+COPY [--chown=<user>:<group>] <src>... <dest>
+COPY [--chown=<user>:<group>] ["<src>"... "<dest>"]
+```
+> ADD 명령어의 &lt;src&gt;가 압축파일이면 압축 해제하여 추가   
+> 로컬 파일을 도커 이미지로 복사하는 경우가 대부분   
+- ex)
+```dockerfile
+# text.txt 복사
+COPY text.txt /dest/
+
+# sam으로 시작하는 모든 파일 복사
+COPY sam* /dest/
+
+# ? 자리를 다른 문자열로 바꿨을 때 존재하는 파일만 복사
+# ex) sample.txt
+COPY sampl?.txt /dest/
+```
+
+###### ENTRYPOINT
+```dockerfile
+ENTRYPOINT ["<command>", "<param1>", "<param2>", ...]
+ENTRYPOINT <전체 커맨드>
+```
+> 이미지를 인스턴스화할 때 항상 실행되어야 하는 명령 지정   
+> 지정된 명령어를 실행하고 실행된 프로세스가 죽을 때 컨테이너도 같이 종료되므로 
+> 도커 이미지를 하나의 실행 파일처럼 사용할 때 유용하다.
+- ex)
+```dockerfile
+# jar 파일을 실행
+ENTRYPOINT ["java", "-jar", "catalog.jar"]
+```
+
+### 도커 이미지 변환
+
+#### JAR 파일 생성
+- eclipse: maven install
+- intellij
+  - maven: Service-0.0.1-SNAPSHOT.jar
+    - 오른쪽의 maven 탭에서 module > lifecycle > package 실행
+    - BeanCreationException 발생 시 package task 우클릭 후 실행 구성 수정 우클릭, 실행 탭의 package -f pom.xml에 -DskipTests를 추가한다.
+  - gradle
+    - 프로젝트 구조 > 아티팩트 > 종속 요소 포함해 jar 추가
+    - 모듈과 메인 클래스 적용 후 저장
+    - Build > Build Artifacts...
+      - jps.track.ap.dependencies 오류
+    >     Setting > Build, Execution, Deployment > Compiler > Shared build process VM options에 다음 명령줄을 추가   
+      `-Djps.track.ap.dependencies=false`
+
+#### Dockerfile 생성
+- 마이크로서비스 폴더에 Dockerfile 생성
+- `FROM java:8`: java 8버전 라이브러리를 컨테이너에 추가
+- `EXPOSE 8081`: 액세스하기 위한 port 번호 8081
+- `ADD ../out/artifacts/Catalogs_jar/Catalogs.jar catalog.jar`: 대상 프로젝트의 JAR 파일을 이미지의 파일 시스템에 추가
+- `ENTRYPOINT ["java", "-jar", "catalog.jar"]`: 도커 내에서 JAR 파일을 실행
+
+#### 도커 이미지 변환
+> Dockerfile을 만든 디렉토리로 이동해 다음 명령을 실행한다.   
+> `docker build -t catalog .`
+- docker build <option> <Dockerfile 경로>
+- option -t, --tag: 저장소 이름, 이미지 이름, 태그 설정
+  - <저장소 이름>/<이미지 이름>:<태그>
+> - `docker images`   
+> 도커 이미지가 사용 가능한 지 확인   
+> - `docker run -d --name catalog-container -p 8081:8081 catalog`   
+> 도커 이미지 실행
+
+#### Docker Compose
+> Docker Compose를 사용해 전체 시스템 환경을 관리
+1. 마이크로서비스를 설명하는 구성 파일 docker-compose.yml 생성
+2. [docker-compose.yml](docker-compose.yml)
+3. `docker-compose up -d`

@@ -60,3 +60,6 @@ replay_pid*
 
 **/mvnw
 **/mvnw.cmd
+
+elk/data/
+**/META-INF/

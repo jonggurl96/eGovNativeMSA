@@ -1,0 +1,45 @@
+version: '1'
+
+services:
+  discovery-service:
+    image: eureka:latest
+    ports:
+      - 8761:8761
+    environment:
+      - "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/"
+      - "EUREKA_INSTANCE_PREFERIPADDRESS=true"
+
+  apigateway-service:
+    image: zuul:latest
+    ports:
+      - 8080:8080
+    environment:
+      - "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/"
+      - "EUREKA_INSTANCE_PREFERIPADDRESS=true"
+    depends_on:
+      - discovery-service
+
+  customer-service:
+    image: customer:latest
+    ports:
+      - 8082:8082
+    environment:
+      - "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/"
+      - "EUREKA_INSTANCE_PREFERIPADDRESS=true"
+    depends_on:
+      - discovery-service
+
+  catalog-service:
+    image: catalog:latest
+    ports:
+      - 8081:8081
+    environment:
+      - "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/"
+      - "EUREKA_INSTANCE_PREFERIPADDRESS=true"
+    depends_on:
+      - discovery-service
+
+networks:
+  default:
+    external: true
+    name: msa
