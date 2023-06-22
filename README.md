@@ -458,6 +458,7 @@ spring:
 #### Spring Cloud Bus 테스트
 - Config Server의 templateEnterprise-dev.yml 파일의 config.profile 값을 ebt-change로 변경
 - classpath의 templateEnterprise-dev.yml 수정 후 Config Client의 bus-refresh actuator를 호출 (POST)
+- RabbitMQ가 자동으로 다른 클라이언트들에 refresh 실행
 - 테스트 URL localhost:9625/config/profile 접속하면 변경된 속성값이 출력됨
 
 ### Polygot Support - Sidecar
