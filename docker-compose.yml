@@ -61,8 +61,6 @@ services:
       retries: 3
     environment:
       - "SPRING_RABBITMQ_HOST=rabbitmq"
-      - "SPRING_PROFILES_ACTIVE=native"
-      - "SPRING_APPLICATION_NAME=templateEnterprise"
       - "SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS=/var/conf/server/conf-repo"
       - "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/"
     depends_on:
@@ -76,11 +74,21 @@ services:
     environment:
       - "SPRING_RABBITMQ_HOST=rabbitmq"
       - "SPRING_CLOUD_CONFIG_URI=http://config-server:8888"
-      - "SPRING_PROFILES_ACTIVE=dev"
-      - "SPRING_APPLICATION_NAME=templateEnterprise"
       - "EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/"
     depends_on:
       - config-server
+
+  sidecar:
+    build: Sidecar
+    image: egov-msa/sidecar
+    ports:
+      - 5678:5678
+    hostname: sidecar
+    environment:
+      - "SIDECAR_HEALTHURI=http://sidecar:5000/health.json"
+    depends_on:
+      - discovery-service
+      - apigateway-service
 
 networks:
   default:
