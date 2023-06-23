@@ -1,3 +1,4 @@
+# Config Client application.yml
 management:
   endpoints:
     web:
@@ -9,3 +10,10 @@ spring:
     port: 5672
     username: guest
     password: guest
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

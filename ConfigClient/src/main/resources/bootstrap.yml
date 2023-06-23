@@ -1,3 +1,4 @@
+# Config Client bootstrap.yml
 server:
   port: 9265
 
@@ -7,3 +8,5 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
+      retry:
+        max-attempts: 1

@@ -9,3 +9,4 @@ sidecar:
   port: 5000
   health-uri: http://localhost:5000/health.json
   hostname: localhost
+

@@ -8,7 +8,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableDiscoveryClient
 public class ConfigClientApplication {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String profile = System.getProperty("spring.profiles.active");
         if(profile == null) {
             System.setProperty("spring.profiles.active", "dev");

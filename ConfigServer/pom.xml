@@ -35,13 +35,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Config Server -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-server</artifactId>
-            <version>${spring.cloud.version}</version>
-        </dependency>
-
         <!-- Security & Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
