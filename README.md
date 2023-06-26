@@ -1,7 +1,10 @@
 # eGovFramework Cloud Native MSA 적용 개발 가이드 따라하기
-- JDK Eclipse temurin 1.8
-- eGovframework 4.0.0
-- SpringBoot 2.2.6.RELEASE
+
+<img src="https://img.shields.io/badge/Java JDK eclipse temurin 1.8-FFFFFF?style=flat-square&logo=OpenJDK&logoColor=black">
+<img src="https://img.shields.io/badge/Spring Boot v2.2.6.RELEASE-6DB33F?style=flat-square&logo=Spring Boot&logoColor=white">
+<img src="https://img.shields.io/badge/Spring Cloud v2.2.5.RELEASE-6DB33F?style=flat-square&logo=iCloud&logoColor=white">
+<img src="https://img.shields.io/badge/Docker Desktop v4.20.1-2496ED?style=flat-square&logo=Docker&logoColor=white">
+<img src="https://img.shields.io/badge/Docker Compose v2.18.1-2496ED?style=flat-square&logo=Docker&logoColor=white">
 
 # Service Mesh
 - [화면 서비스: CatalogsService](#catalogsservice)
@@ -20,21 +23,11 @@
 - [Catalogs Service URL](#catalogs-service-url)
 
 ## Spring Boot Starter Project Catalogs 생성
-- Service URL : https://start.spring.io
-- Use Default Location check
 - Maven build
 - Group: egovframework.msa.sample
-- Artifact: Catalogs
-- Group Id: egovframework.msa.sample
 - Packaging: Jar
-- JDK 17, Java 17
-   
-- Spring Boot Version 3.1.0
-- Spring Initializr의 Developer Tools 
-  - GraalVM Native Support
-  - Spring Boot DevTools
-  - Lombok
-  - Spring Configuration Processor
+- JDK 8, Java 8
+- Spring Boot Version 2.7.12: pom.xml에서 2.2.6.RELEASE로 수정
 
 ## pom.xml 의존성 추가
 - [pom.xml](Catalogs/pom.xml)
@@ -45,16 +38,12 @@
 
 ## 각 클래스 파일 작성
 - [CatalogApplication](Catalogs/src/main/java/egovframework/msa/sample/catalogs/CatalogsApplication.java)
-  > @ComponentScan(basePackages = "egovframework") 추가
 - [CustomerApiService](Catalogs/src/main/java/egovframework/msa/sample/service/CustomerApiService.java)
 - [CustomerApiServiceImpl](Catalogs/src/main/java/egovframework/msa/sample/serviceImpl/CustomerApiServiceImpl.java)
 - [CatalogsController](Catalogs/src/main/java/egovframework/msa/sample/controller/CatalogsController.java)
 
 ## Catalogs Service URL
 - **http://localhost:8081/catalogs/1234**
-
-
-
 
 # CustomersService
 - [Spring Boot Starter Project Customers 생성](#spring-boot-starter-project-customers-생성)
