@@ -62,11 +62,7 @@ services:
     image: egov-msa/config-server
     ports:
       - 8888:8888
-    healthcheck:
-      test: ["CMD-SHELL", "curl", "-f", "http://config-server:8888 || exit 1"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
+    restart: always
     environment:
       - "spring.rabbitmq.host=rabbitmq"
       - "spring.cloud.config.server.native.searchLocations=/var/conf/server/conf-repo"
@@ -83,8 +79,7 @@ services:
       - "spring.cloud.bus.ack.destinationService=config-server"
       - "eureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka/"
     depends_on:
-      config-server:
-        condition: service_healthy
+      - config-server
     restart: on-failure
 
   sidecar:
@@ -94,8 +89,8 @@ services:
       - 5678:5678
     hostname: sidecar
     environment:
-      - "sidecar.healthUri=http://sidecar:5000/health.json"
       - "eureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka/"
+      - "sidecar.healthUri=http://192.168.123.167:5000/health.json"
     depends_on:
       - apigateway-service
 

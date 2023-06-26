@@ -681,6 +681,54 @@ ENTRYPOINT ["java", "-jar", "catalog.jar"]
 > - `docker run -d --name catalog-container -p 8081:8081 catalog`   
 > 도커 이미지 실행
 
+#### Docker Container에서 동작하기 위한 추가 설정
+##### ConfigClient
+```yaml
+# application.yml
+# EurekaServer에 등록
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# bootstrap.yml
+# ConfigServer가 로딩되고 속성값을 읽을때까지 재시도
+spring:
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        max-attempts: 1
+        initial-interval: 1000
+        multiplier: 1.1
+```
+##### EurekaServer
+```yaml
+# Eureka Server에 EurekaServer 서비스 제외 및 에러 코드 제거
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+```
+##### ZuulServer
+```yaml
+eureka:
+  instance:
+    # non-secure-port: ${server.port}
+```
+
+##### docker-compoer.yml environments
+```yaml
+"eureka.client.serviceUrl.defaultZone=http://{등록할 서비스 이름}:{Eureka port}/eureka/"
+"spring.zipkin.baseUrl=http://{zipkin 컨테이너 서비스 이름}:{Zipkin port}"
+"TZ=Asia/Seoul" # Zipkin, RAbbitMQ TimeZone
+"spring.rabbitmq.host={RabbitMQ 서비스 이름}"
+"spring.cloud.config.server.native.searchLocations={복사한 설정파일 위치}"
+
+```
+
 #### Docker Compose
 > Docker Compose를 사용해 전체 시스템 환경을 관리
 1. 마이크로서비스를 설명하는 구성 파일 docker-compose.yml 생성
