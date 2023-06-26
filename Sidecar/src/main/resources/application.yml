@@ -4,9 +4,17 @@ server:
 spring:
   application:
     name: sidecar-nonJVM
+  zipkin:
+    base-url: http://localhost:9411
 
 sidecar:
   port: 5000
   health-uri: http://localhost:5000/health.json
   hostname: localhost
 
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

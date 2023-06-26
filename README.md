@@ -712,6 +712,7 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
 ```
+
 ##### ZuulServer
 ```yaml
 eureka:
@@ -719,14 +720,14 @@ eureka:
     # non-secure-port: ${server.port}
 ```
 
-##### docker-compoer.yml environments
+##### docker-compose.yml environments
 ```yaml
 "eureka.client.serviceUrl.defaultZone=http://{등록할 서비스 이름}:{Eureka port}/eureka/"
 "spring.zipkin.baseUrl=http://{zipkin 컨테이너 서비스 이름}:{Zipkin port}"
 "TZ=Asia/Seoul" # Zipkin, RAbbitMQ TimeZone
 "spring.rabbitmq.host={RabbitMQ 서비스 이름}"
 "spring.cloud.config.server.native.searchLocations={복사한 설정파일 위치}"
-
+"sidecar.healthUri=http://host.docker.internal:5000/health.json" # host.docker.internal = localhost
 ```
 
 #### Docker Compose

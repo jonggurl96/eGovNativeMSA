@@ -70,7 +70,7 @@ services:
 
   config-client:
     build: ConfigClient
-    image: egov-msa/config-client
+    image: egov-msa/config-client-1
     ports:
       - 9265:9265
     environment:
@@ -87,10 +87,10 @@ services:
     image: egov-msa/sidecar
     ports:
       - 5678:5678
-    hostname: sidecar
     environment:
       - "eureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka/"
-      - "sidecar.healthUri=http://192.168.123.167:5000/health.json"
+      - "spring.zipkin.baseUrl=http://zipkin:9411"
+      - "sidecar.healthUri=http://host.docker.internal:5000/health.json"
     depends_on:
       - apigateway-service
 
